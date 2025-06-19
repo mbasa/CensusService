@@ -30,10 +30,10 @@ jobs:
 
     - uses: ncipollo/release-action@v1
       with:
-        artifacts: "target/mcpLocation.jar"
+        artifacts: "target/CensusService.war"
         #replacesArtifacts: true
         allowUpdates: false
         makeLatest: true
-        tag: "McpLocationService-run${{ github.run_number }}"
-        name: "McpLocationService"
+        tag: "CensusService-run${{ github.run_number }}"
+        name: "CensusService"
         token: ${{ secrets.GITHUB_TOKEN }}
