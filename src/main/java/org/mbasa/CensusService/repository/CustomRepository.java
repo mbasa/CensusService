@@ -7,10 +7,10 @@
  */
 package org.mbasa.CensusService.repository;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import jakarta.persistence.EntityManager;
 
 /**
  * 説明：
@@ -27,7 +27,7 @@ public class CustomRepository {
     }
 
     @Autowired
-    EntityManager em;
+    private EntityManager em;
 
     public String queryMesh4(String geoJson) {
         String sql = String.format("""
