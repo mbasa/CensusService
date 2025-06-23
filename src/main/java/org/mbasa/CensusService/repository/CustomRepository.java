@@ -32,17 +32,17 @@ public class CustomRepository {
     public String queryMesh4(String geoJson) {
         String sql = String.format("""
                  WITH json_load AS (
-                    SELECT ST_GeomFromGeoJSON('%s'::JSONB->'geometry') json_geom
+                    SELECT ST_GeomFromGeoJSON('%s'\\:\\:JSONB->'geometry') json_geom
                 )
-                SELECT jsonb_build_object(
+                SELECT CAST(jsonb_build_object(
                     'type',     'FeatureCollection',
                     'features', jsonb_agg(feature)
-                )
+                ) AS TEXT)
                 FROM (
                   SELECT jsonb_build_object(
                     'type',       'Feature',
                     'id',       "MESH_CODE",
-                    'geometry',   ST_AsGeoJSON(geom)::jsonb,
+                    'geometry',   ST_AsGeoJSON(geom)\\:\\:JSONB,
                     'properties', to_jsonb(row) - "MESH_CODE" - 'geom'
                   ) AS feature
                   FROM (SELECT "MESH_CODE",
