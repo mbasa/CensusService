@@ -30,6 +30,17 @@ public class CustomRepository {
     private EntityManager em;
 
     public String queryMesh4(String geoJson) {
+
+        if (geoJson.startsWith("'") && geoJson.endsWith("'") &&
+                geoJson.length() >= 2) {
+            geoJson = geoJson.substring(1, geoJson.length() - 1);
+        }
+        if (geoJson.startsWith("\"") && geoJson.endsWith("\"") &&
+                geoJson.length() >= 2) {
+            geoJson = geoJson.substring(1, geoJson.length() - 1);
+        }
+
+
         String sql = String.format("""
                  WITH json_load AS (
                     SELECT ST_GeomFromGeoJSON('%s'\\:\\:JSONB->'geometry') json_geom
@@ -70,7 +81,7 @@ public class CustomRepository {
                     "高齢夫婦のみの一般世帯数",
                     geom
                     FROM mesh4 m,json_load j where ST_OVERLAPS(m.geom,j.json_geom)) row) features;
-                  """, geoJson.replaceAll("\\s+", ""));
+                  """, geoJson.replace("\\\"", "\"").replaceAll("\\s+", ""));
 
         String retVal = em.createNativeQuery(sql)
                 .getSingleResult()
