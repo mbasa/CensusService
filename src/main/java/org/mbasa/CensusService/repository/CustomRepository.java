@@ -29,8 +29,7 @@ public class CustomRepository {
     @Autowired
     private EntityManager em;
 
-    public String queryMesh4(String geoJson) {
-
+    private String cleanJson(String geoJson) {
         if (geoJson.startsWith("'") && geoJson.endsWith("'") &&
                 geoJson.length() >= 2) {
             geoJson = geoJson.substring(1, geoJson.length() - 1);
@@ -40,6 +39,12 @@ public class CustomRepository {
             geoJson = geoJson.substring(1, geoJson.length() - 1);
         }
 
+        return geoJson;
+    }
+
+    public String queryMesh4(String geoJson) {
+
+        geoJson = this.cleanJson(geoJson);
 
         String sql = String.format("""
                  WITH json_load AS (
@@ -81,6 +86,39 @@ public class CustomRepository {
                     "高齢夫婦のみの一般世帯数",
                     geom
                     FROM mesh4 m,json_load j where ST_OVERLAPS(m.geom,j.json_geom)) row) features;
+                  """, geoJson.replace("\\\"", "\"").replaceAll("\\s+", ""));
+
+        String retVal = em.createNativeQuery(sql)
+                .getSingleResult()
+                .toString();
+
+        return retVal;
+    }
+
+    public String queryPoi(String geoJson) {
+
+        geoJson = this.cleanJson(geoJson);
+
+        String sql = String.format("""
+                 WITH json_load AS (
+                    SELECT ST_GeomFromGeoJSON('%s'\\:\\:JSONB->'geometry') json_geom
+                )
+                SELECT CAST(jsonb_build_object(
+                    'type',     'FeatureCollection',
+                    'features', jsonb_agg(feature)
+                ) AS TEXT)
+                FROM (
+                  SELECT jsonb_build_object(
+                    'type',       'Feature',
+                    'id',         osm_id,
+                    'geometry',   ST_AsGeoJSON(geom)\\:\\:JSONB,
+                    'properties', to_jsonb(row) - 'osm_id' - 'geom'
+                  ) AS feature
+                  FROM (SELECT osm_id,
+                    category,
+                    name,
+                    geom
+                    FROM osm_poi m,json_load j where ST_CONTAINS(j.json_geom,m.geom)) row) features;
                   """, geoJson.replace("\\\"", "\"").replaceAll("\\s+", ""));
 
         String retVal = em.createNativeQuery(sql)

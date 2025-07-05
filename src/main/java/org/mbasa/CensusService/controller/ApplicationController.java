@@ -46,4 +46,13 @@ public class ApplicationController {
             public String getMeshData(@RequestParam("geoJson") String geoJson) {
         return custRepo.queryMesh4(geoJson);
     }
+
+    @Operation(summary = "Returns POIs", description = "Returns geojson features of POI data that is contained in the input geojson polygon", parameters = {
+            @Parameter(name = "geoJson", description = "GeoJSON Polygon that will be used to query the POIs", required = true)
+    }
+    )
+    @GetMapping(value = "/poi", produces = "application/json;charset=UTF-8")
+    public String getPoiData(@RequestParam("geoJson") String geoJson) {
+        return custRepo.queryPoi(geoJson);
+    }
 }
