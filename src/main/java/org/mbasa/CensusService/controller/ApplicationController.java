@@ -71,6 +71,7 @@ public class ApplicationController {
             String address = custRepo.queryPeopleFlow(geoJson, "address");
             String maritalstatus = custRepo.queryPeopleFlow(geoJson, "maritalstatus");
             String residencestatus = custRepo.queryPeopleFlow(geoJson, "residencestatus");
+            String recentacademichistory = custRepo.queryPeopleFlow(geoJson, "recentacademichistory");
             String personalincome = custRepo.queryPeopleFlow(geoJson, "personalincome");
             String householdincome = custRepo.queryPeopleFlow(geoJson, "householdincome");
 
@@ -81,14 +82,16 @@ public class ApplicationController {
                          "job" : %s,
                          "position": %s,
                          "address": %s,
-                         "maritalstatus": %s,
-                         "residencestatus": %s,
-                         "personalincome": %s,
-                         "householdincome": %s
+                         "marital_status": %s,
+                         "residence_status": %s,
+                         "recent_academic_history": %s,
+                         "personal_income": %s,
+                         "household_income": %s
                      }
                     }
                     """, sex, job, position, address, maritalstatus,
-                    residencestatus, personalincome, householdincome);
+                    residencestatus, recentacademichistory,
+                    personalincome, householdincome);
 
         } catch (Exception e) {
             return "{}";
