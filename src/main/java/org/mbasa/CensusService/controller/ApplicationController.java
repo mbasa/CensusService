@@ -55,4 +55,45 @@ public class ApplicationController {
     public String getPoiData(@RequestParam("geoJson") String geoJson) {
         return custRepo.queryPoi(geoJson);
     }
+
+    @Operation(summary = "Returns People Flow (人流) Information", description = "Returns JSON People Information that is within the input geojson polygon", parameters = {
+            @Parameter(name = "geoJson", description = "GeoJSON Polygon that will be used to query the People Flow data", required = true)
+    })
+    @GetMapping(value = "/people_flow", produces = "application/json;charset=UTF-8")
+    public String getPeopleFlowData(@RequestParam("geoJson") String geoJson) {
+
+        String retVal = new String();
+
+        try {
+            String sex = custRepo.queryPeopleFlow(geoJson, "sex");
+            String job = custRepo.queryPeopleFlow(geoJson, "job");
+            String position = custRepo.queryPeopleFlow(geoJson, "position");
+            String address = custRepo.queryPeopleFlow(geoJson, "address");
+            String maritalstatus = custRepo.queryPeopleFlow(geoJson, "maritalstatus");
+            String residencestatus = custRepo.queryPeopleFlow(geoJson, "residencestatus");
+            String personalincome = custRepo.queryPeopleFlow(geoJson, "personalincome");
+            String householdincome = custRepo.queryPeopleFlow(geoJson, "householdincome");
+
+            retVal = String.format("""
+                    {
+                     "people_flow_information" : {
+                         "sex" : %s,
+                         "job" : %s,
+                         "position": %s,
+                         "address": %s,
+                         "maritalstatus": %s,
+                         "residencestatus": %s,
+                         "personalincome": %s,
+                         "householdincome": %s
+                     }
+                    }
+                    """, sex, job, position, address, maritalstatus,
+                    residencestatus, personalincome, householdincome);
+
+        } catch (Exception e) {
+            return "{}";
+        }
+
+        return retVal;
+    }
 }

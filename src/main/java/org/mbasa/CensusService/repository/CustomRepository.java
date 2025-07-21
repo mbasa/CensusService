@@ -85,7 +85,7 @@ public class CustomRepository {
                     "高齢単身の一般世帯数",
                     "高齢夫婦のみの一般世帯数",
                     geom
-                    FROM mesh4 m,json_load j where ST_OVERLAPS(m.geom,j.json_geom)) row) features;
+                    FROM mesh4 m,json_load j WHERE ST_OVERLAPS(m.geom,j.json_geom)) row) features;
                   """, geoJson.replace("\\\"", "\"").replaceAll("\\s+", ""));
 
         String retVal = em.createNativeQuery(sql)
@@ -118,8 +118,34 @@ public class CustomRepository {
                     category,
                     name,
                     geom
-                    FROM osm_poi m,json_load j where ST_CONTAINS(j.json_geom,m.geom)) row) features;
+                    FROM osm_poi m,json_load j WHERE ST_CONTAINS(j.json_geom,m.geom)) row) features;
                   """, geoJson.replace("\\\"", "\"").replaceAll("\\s+", ""));
+
+        String retVal = em.createNativeQuery(sql)
+                .getSingleResult()
+                .toString();
+
+        return retVal;
+    }
+
+    public String queryPeopleFlow(String geoJson, String fieldName) {
+        geoJson = this.cleanJson(geoJson);
+
+        String sql = String.format("""
+                 WITH json_load AS (
+                    SELECT ST_GeomFromGeoJSON('%s'\\:\\:JSONB->'geometry') geom
+                )
+                SELECT json_object_agg(case when field is null then 'その他' else field end,count)\\:\\:text as t1
+                FROM
+                 (SELECT %s as field,count(*) as count
+                  FROM
+                    (SELECT distinct on (a.userid) c.* FROM geolocation a, json_load b,survey c
+                    WHERE st_contains(b.geom,a.geom) and a.userid = c.userid) as q1
+                    GROUP BY %s ) as q2  ;
+                  """,
+                geoJson.replace("\\\"", "\"").replaceAll("\\s+", ""),
+                fieldName,
+                fieldName);
 
         String retVal = em.createNativeQuery(sql)
                 .getSingleResult()
