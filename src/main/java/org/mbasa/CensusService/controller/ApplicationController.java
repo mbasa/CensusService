@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,10 +46,9 @@ public class ApplicationController {
     }
 
     @Operation(summary = "Returns 500m mesh census data (POST)", description = "Returns geojson features of 500m mesh data containing Census Information that overlaps input geojson polygon (POST)", parameters = {
-            @Parameter(name = "geoJson", description = "GeoJSON Polygon that will be used to query the mesh census data", required = true)
     })
     @PostMapping(value = "/census/mesh4", produces = "application/json;charset=UTF-8")
-    public String getMeshDataPost(@RequestParam("geoJson") String geoJson) {
+    public String getMeshDataPost(@RequestBody String geoJson) {
         return custRepo.queryMesh4(geoJson);
     }
 
